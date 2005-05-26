@@ -1,0 +1,11 @@
+AAA
+//: begin "sezA"
+	XXX
+	//: begin "sezB"
+		YYY
+	//: end
+	K
+//: end
+//: begin "sezC"
+	WXYZ
+//: end
