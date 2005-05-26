@@ -15,11 +15,18 @@ import boo.tree.BlockDescription;
 import boo.tree.BlockTreeNode;
 
 /**
- * Parser che costruisce l'albero corrispondente al file.
+ * Parser che costruisce l'albero dei blocchi corrispondente al file.
  */
 public class Parser {
 
+    /**
+     * Lexer utilizzato per effettuare la scansione delle righe.
+     */
     protected Lexer lexer;
+
+    /**
+     * Nome da assegnare al nodo radice.
+     */
     protected String rootName;
 
     /**
@@ -33,6 +40,7 @@ public class Parser {
      * @param lexer
      *            Lexer da utilizzare per la scansione del file.
      * @param rootName
+     *            Nome da assegnare al nodo radice.
      */
     public Parser(Lexer lexer, String rootName) {
         this.lexer = lexer;
@@ -105,8 +113,8 @@ public class Parser {
     }
 
     public static void main(String args[]) throws IOException, SyntaxError {
-        BufferedReader f = new BufferedReader(new InputStreamReader(
-                ClassLoader.getSystemResourceAsStream("boo/test/Prova.txt")));
+        BufferedReader f = new BufferedReader(new InputStreamReader(ClassLoader
+                .getSystemResourceAsStream("boo/test/Prova.txt")));
         Parser p = new Parser(new Lexer(), "prova.txt");
         BlockTreeNode t = p.parse(f);
         System.out.println("Esegui questo modulo in modalitˆ debug "

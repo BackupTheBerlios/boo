@@ -10,20 +10,22 @@ package boo.util;
  * codice, o comunque non relative ad un particolare aspetto del programma.
  */
 public class Utilities {
-	
-	private Utilities() { } // classe non istanziabile
-	
-	/**
-	 * Restituisce un nuovo array (la <i>coda</i>) contenente tutti gli elementi dell'array
-	 * passato come parametro tranne il primo.
-	 * @param array Array di cui estrarre la coda.
-	 * @return Coda dell'array.
-	 */
-	public static Object[] extractTail(Object array[]) {
-		int n = array.length;
-		Object tail[] = new Object[n - 1];
-		System.arraycopy(array, 1, tail, 0, n - 1);
-		return tail;
-	}
-	
+
+    private Utilities() {} // classe non istanziabile
+
+    /**
+     * Restituisce un nuovo array (la <i>coda </i>) contenente tutti gli
+     * elementi dell'array passato come parametro tranne il primo.
+     * 
+     * @param array
+     *            Array di cui estrarre la coda.
+     * @return Coda dell'array.
+     */
+    public static Object[] extractTail(Object array[]) {
+        int n = array.length;
+        Object tail[] = new Object[n - 1];
+        System.arraycopy(array, 1, tail, 0, n - 1);
+        return tail;
+    }
+
 }
