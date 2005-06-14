@@ -11,8 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import boo.tree.BlockDescription;
-import boo.tree.BlockTreeNode;
+import boo.tree.SectionDescription;
+import boo.tree.SectionTreeNode;
 
 /**
  * Parser che costruisce l'albero dei blocchi corrispondente al file.
@@ -58,7 +58,7 @@ public class Parser {
      * @throws SyntaxError
      *             Errore di sintassi nel file indicato.
      */
-    public synchronized BlockTreeNode parse(File fileName) throws IOException,
+    public synchronized SectionTreeNode parse(File fileName) throws IOException,
             SyntaxError {
         BufferedReader source = new BufferedReader(new FileReader(fileName));
         return parse(source);
@@ -76,11 +76,11 @@ public class Parser {
      * @throws SyntaxError
      *             Errore di sintassi nel file indicato.
      */
-    public synchronized BlockTreeNode parse(BufferedReader source)
+    public synchronized SectionTreeNode parse(BufferedReader source)
             throws IOException, SyntaxError {
-        BlockDescription fileBlock = new BlockDescription(rootName, 0, -1);
-        BlockTreeNode root = new BlockTreeNode(fileBlock, null);
-        BlockTreeNode treePtr = root;
+        SectionDescription fileBlock = new SectionDescription(rootName, 0, -1);
+        SectionTreeNode root = new SectionTreeNode(fileBlock, null);
+        SectionTreeNode treePtr = root;
         String newLine;
         int n = 0;
         while (true) {
@@ -94,13 +94,13 @@ public class Parser {
                 case Token.END:
                     if (treePtr.getParent() == null) throw new SyntaxError();
                     treePtr.getValue().setEndLine(n - 1);
-                    treePtr = (BlockTreeNode) treePtr.getParent();
+                    treePtr = (SectionTreeNode) treePtr.getParent();
                     break;
 
                 case Token.BEGIN:
-                    BlockDescription b = new BlockDescription(token
+                    SectionDescription b = new SectionDescription(token
                             .getContents(), n, -1);
-                    BlockTreeNode t = new BlockTreeNode(b, treePtr);
+                    SectionTreeNode t = new SectionTreeNode(b, treePtr);
                     treePtr.addChild(t);
                     treePtr = t;
                     break;
@@ -116,7 +116,7 @@ public class Parser {
         BufferedReader f = new BufferedReader(new InputStreamReader(ClassLoader
                 .getSystemResourceAsStream("boo/test/Prova.txt")));
         Parser p = new Parser(new Lexer(), "prova.txt");
-        BlockTreeNode t = p.parse(f);
+        SectionTreeNode t = p.parse(f);
         System.out.println("Esegui questo modulo in modalitˆ debug "
                 + "ed ispeziona il contenuto della variabile t.");
     }
