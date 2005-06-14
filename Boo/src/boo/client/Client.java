@@ -12,11 +12,17 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	private IGateway gateway;
 
-	public Client() throws RemoteException {
+	private String userName;
+
+	private String password;
+
+	public Client(String userName, String password) throws RemoteException {
 		super();
+		this.userName = userName;
+		this.password = password;
 	}
 
-	private void log(String message) {
+	private static void log(String message) {
 		System.err.println(message);
 	}
 
@@ -24,16 +30,30 @@ public class Client extends UnicastRemoteObject implements IClient {
 		ILoginManager lm = null;
 		try {
 			lm = (ILoginManager) LocateRegistry.getRegistry(host,
-					ILoginManager.PORT).lookup("Boo");
+					ILoginManager.PORT).lookup(ILoginManager.SERVICE_NAME);
 		} catch (NotBoundException e) {
-			log("LoginManager not found at " + host + ":5000");
+			log("LoginManager not found at " + host + ":" + ILoginManager.PORT);
 		}
-		gateway = lm.login("Domenico", "prova", this);
+		gateway = lm.login(userName, password, this);
 		if (gateway != null) {
 			log("Logged in.");
 		} else {
 			log("Not logged in. Something didn't work.");
 		}
+	}
+
+	public void provaCallback(String parametro) throws RemoteException {
+		log(parametro);
+	}
+
+	public static void main(String[] args) throws Exception {
+		int numClients = 4;
+		for (int i = 0; i < numClients; i++) {
+			Client c = new Client("Utente" + (i < 10 ? "0" : "") + i, "prova");
+			c.login("10.0.0.55");
+		}
+		while (true)
+			;
 	}
 
 }

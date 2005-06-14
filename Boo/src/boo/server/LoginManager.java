@@ -15,9 +15,14 @@ public class LoginManager extends UnicastRemoteObject implements ILoginManager {
 		gateway = new Gateway();
 	}
 
-	public IGateway login(String userName, String password, IClient client)
+	private static void log(String message) {
+		System.err.println(message);
+	}
+
+	public synchronized IGateway login(String userName, String password, IClient client)
 			throws RemoteException {
-		if (userName.equals("Domenico") && password.equals("ciao")) {
+		if (!gateway.isConnected(userName) && password.equals("prova")) {
+			gateway.addClient(userName, client);
 			return gateway;
 		} else {
 			return null;
@@ -25,7 +30,9 @@ public class LoginManager extends UnicastRemoteObject implements ILoginManager {
 	}
 
 	public static void main(String[] args) throws Exception {
-		LocateRegistry.createRegistry(PORT).bind("Boo", new LoginManager());
+		LocateRegistry.createRegistry(PORT).bind(SERVICE_NAME,
+				new LoginManager());
+		log("Service " + SERVICE_NAME + " registered on port " + PORT + ".");
 	}
 
 }
