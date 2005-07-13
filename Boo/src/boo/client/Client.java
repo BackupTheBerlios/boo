@@ -48,12 +48,18 @@ public class Client extends UnicastRemoteObject implements IClient {
 
 	public static void main(String[] args) throws Exception {
 		int numClients = 4;
+		String serverAddress = "127.0.0.1";
+		
+		if (args.length > 0)
+			serverAddress = args[0];
+
 		for (int i = 0; i < numClients; i++) {
 			Client c = new Client("Utente" + (i < 10 ? "0" : "") + i, "prova");
-			c.login("10.0.0.55");
+			c.login(serverAddress);
 		}
-		while (true)
-			;
+		while (true) {
+			// just wait...
+		}
 	}
 
 }
