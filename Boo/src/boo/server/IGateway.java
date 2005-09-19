@@ -1,7 +1,7 @@
 package boo.server;
 
-import java.rmi.Remote;
+import java.io.Serializable;
 
-public interface IGateway extends Remote {
+public interface IGateway extends Serializable {
 
 }

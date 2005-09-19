@@ -7,38 +7,57 @@ import java.rmi.server.UnicastRemoteObject;
 
 import boo.server.IGateway;
 import boo.server.ILoginManager;
+import boo.util.Utilities;
 
 public class Client extends UnicastRemoteObject implements IClient {
 
 	private IGateway gateway;
-
 	private String userName;
-
 	private String password;
-
+	
 	public Client(String userName, String password) throws RemoteException {
 		super();
 		this.userName = userName;
 		this.password = password;
 	}
-
+	
 	private static void log(String message) {
 		System.err.println(message);
 	}
-
-	public void login(String host) throws RemoteException {
+	
+	/**
+	 * Tenta di effettuare il login sul server specificato. Solleva un'eccezione
+	 * se il login non va a buon fine.
+	 * 
+	 * @param host
+	 * 			Indirizzo del server a cui connettersi.
+	 * @throws RemoteException
+	 */
+	public void login(String host) throws NotBoundException, RemoteException {
 		ILoginManager lm = null;
+		
+		// localizza
 		try {
 			lm = (ILoginManager) LocateRegistry.getRegistry(host,
 					ILoginManager.PORT).lookup(ILoginManager.SERVICE_NAME);
 		} catch (NotBoundException e) {
-			log("LoginManager not found at " + host + ":" + ILoginManager.PORT);
+			log("LoginManager service not found at the address " +
+					host + ":" + ILoginManager.PORT);
+			throw e;
 		}
-		gateway = lm.login(userName, password, this);
+		
+		byte[] salt = lm.getSalt(userName);
+		byte[] passcode = Utilities.passwordToPasscode(password, salt);
+		
+		log("salt: " + Utilities.reprByteArray(salt));
+		log("passcode: " + Utilities.reprByteArray(passcode));
+		
+		gateway = lm.login(userName, passcode, this);
+		
 		if (gateway != null) {
-			log("Logged in.");
+			log(userName + " logged in.");
 		} else {
-			log("Not logged in. Something didn't work.");
+			log(userName + " not logged in.");
 		}
 	}
 
@@ -57,6 +76,7 @@ public class Client extends UnicastRemoteObject implements IClient {
 			Client c = new Client("Utente" + (i < 10 ? "0" : "") + i, "prova");
 			c.login(serverAddress);
 		}
+		
 		while (true) {
 			// just wait...
 		}
