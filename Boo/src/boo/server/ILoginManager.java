@@ -13,7 +13,7 @@ public interface ILoginManager extends Remote {
 	public byte[] getSalt(String userName)
 			throws RemoteException;
 	
-	public IGateway login(String userName, byte[] password, IClient client)
+	public boolean login(String userName, byte[] password, IClient client)
 			throws RemoteException;
 
 }

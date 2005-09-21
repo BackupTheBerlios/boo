@@ -1,14 +1,17 @@
 /*
- * Copyright © Domenico Carbotta, 2005.
+ * Copyright ÔøΩ Domenico Carbotta, 2005.
  * Code released under the GNU General Public License.
  */
 
 package boo.util;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.rmi.server.RMISocketFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Permission;
 
 /**
  * Classe non istanziabile. Contiene funzioni utilizzate in varie parti del
@@ -37,11 +40,11 @@ public class Utilities {
      * Restituisce il passcode coddispondente alla password e al salt passati
      * come parametro. Il passcode il risultato dell'applicazione dell'algoritmo
      * di digest SHA alla concatenazione tra la password e il salt.
-     * Il salt è  stringa casuale generata e trasmessa dal server per ogni
+     * Il salt √® una  stringa casuale generata e trasmessa dal server per ogni
      * richiesta di login, e valida solo per il tentativo di login immediatamente
      * successivo.
      * L'algoritmo utilizzato consente di ottenere un livello di sicurezza tal
-     * da prevenire almeno gli attacchi più banali.
+     * da prevenire almeno gli attacchi pi√π banali.
      * 
      * @param password
      * 			La password dell'utente.
@@ -71,5 +74,13 @@ public class Utilities {
     public static String reprByteArray(byte[] a) {
     	return new BigInteger(a).toString();
     }
-
+    
+    public static void rmiSetup() throws IOException {
+    	System.setSecurityManager(new SecurityManager() {
+    			public void checkPermission(Permission p) {
+    				// permetti tutto...
+    			}
+    		});
+    	RMISocketFactory.setSocketFactory(new FixedPortRMISocketFactory());
+    }
 }

@@ -1,8 +1,9 @@
 package boo.client;
 
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
 import boo.server.IGateway;
@@ -10,7 +11,7 @@ import boo.server.ILoginManager;
 import boo.util.Utilities;
 
 public class Client extends UnicastRemoteObject implements IClient {
-
+	
 	private IGateway gateway;
 	private String userName;
 	private String password;
@@ -21,8 +22,8 @@ public class Client extends UnicastRemoteObject implements IClient {
 		this.password = password;
 	}
 	
-	private static void log(String message) {
-		System.err.println(message);
+	private void log(String message) {
+		System.err.println(userName + " |  " + message);
 	}
 	
 	/**
@@ -33,50 +34,69 @@ public class Client extends UnicastRemoteObject implements IClient {
 	 * 			Indirizzo del server a cui connettersi.
 	 * @throws RemoteException
 	 */
-	public void login(String host) throws NotBoundException, RemoteException {
-		ILoginManager lm = null;
+	public void login(String host) throws RemoteException {
 		
-		// localizza
+		ILoginManager lm;
+		
+		String url = "//" + host + ":" + ILoginManager.PORT
+				+ "/" + ILoginManager.SERVICE_NAME;
+		
+		log("connecting to " + url);
+		
 		try {
-			lm = (ILoginManager) LocateRegistry.getRegistry(host,
-					ILoginManager.PORT).lookup(ILoginManager.SERVICE_NAME);
-		} catch (NotBoundException e) {
-			log("LoginManager service not found at the address " +
-					host + ":" + ILoginManager.PORT);
-			throw e;
+			lm = (ILoginManager) Naming.lookup(url);
+		} catch (NotBoundException _) {
+			log("service not found");
+			return;
+		} catch (MalformedURLException _) {
+			log("malformed url");
+			return;
 		}
 		
-		byte[] salt = lm.getSalt(userName);
-		byte[] passcode = Utilities.passwordToPasscode(password, salt);
+		byte[] salt = null;
+		salt = lm.getSalt(userName);
 		
 		log("salt: " + Utilities.reprByteArray(salt));
+	
+		byte[] passcode = Utilities.passwordToPasscode(password, salt);
 		log("passcode: " + Utilities.reprByteArray(passcode));
 		
-		gateway = lm.login(userName, passcode, this);
+		log("logging in...");
 		
-		if (gateway != null) {
-			log(userName + " logged in.");
+		boolean rv = false;
+		
+		rv = lm.login(userName, passcode, this);
+		
+		if (rv) {
+			log("logged in.");
 		} else {
-			log(userName + " not logged in.");
+			log("not logged in.");
 		}
+		
 	}
 
-	public void provaCallback(String parametro) throws RemoteException {
-		log(parametro);
+	public void ping() throws RemoteException {
+		log("pong");
 	}
 
 	public static void main(String[] args) throws Exception {
-		int numClients = 4;
-		String serverAddress = "127.0.0.1";
+		Utilities.rmiSetup();
+		
+		int cntClients = 1;
+		String serverAddress = "10.0.0.55";
 		
 		if (args.length > 0)
 			serverAddress = args[0];
-
-		for (int i = 0; i < numClients; i++) {
-			Client c = new Client("Utente" + (i < 10 ? "0" : "") + i, "prova");
+		
+		if (args.length > 1)
+			cntClients = Integer.parseInt(args[1]);
+		
+		for (int i = 0; i < cntClients; i++) {
+			Client c = new Client("User" + (i < 10 ? "0" : "") + i, "prova");
 			c.login(serverAddress);
 		}
 		
+		System.err.println("hello world.");
 		while (true) {
 			// just wait...
 		}

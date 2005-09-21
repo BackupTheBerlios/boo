@@ -35,16 +35,16 @@ public class LoginManager extends UnicastRemoteObject implements ILoginManager {
 		return salt;
 	}
 	
-	public synchronized IGateway login(String userName, byte[] passcode, IClient client)
+	public synchronized boolean login(String userName, byte[] passcode, IClient client)
 			throws RemoteException {
 		if (!gateway.isConnected(userName) && salts.containsKey(userName) &&
 				checkPasscode(userName, passcode)) {
 			gateway.addClient(userName, client);
 			salts.remove(userName);
-			return gateway;
+			return true;
 		} else {
 			salts.remove(userName);
-			return null;
+			return false;
 		}
 	}
 	
@@ -59,8 +59,9 @@ public class LoginManager extends UnicastRemoteObject implements ILoginManager {
 	}
 	
 	public static void main(String[] args) throws Exception {
-		LocateRegistry.createRegistry(PORT).bind(SERVICE_NAME,
-				new LoginManager());
+		Utilities.rmiSetup();
+		
+		LocateRegistry.createRegistry(PORT).bind(SERVICE_NAME, new LoginManager());
 		log("Service " + SERVICE_NAME + " registered on port " + PORT + ".");
 	}
 
